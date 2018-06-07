@@ -27,36 +27,9 @@ class testTests: XCTestCase {
     }
     
     func testDecodeJSON() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        let jsonString = """
-            {
-                "persons":
-                        [
-                            {
-                            "name": "Jairo",
-                            "age": 36
-                            },
-                            {
-                            "name": "Sarah",
-                            "age": 29
-                            }
-                        ]
-            }
-        """
-        let data = jsonString.data(using: .utf8)
-        let personsArray: [Person] = vc.getObjectsfrom(data: data!, with: "persons")!
-        XCTAssert(!personsArray.isEmpty)
     }
     
     func testEncodeJSON() {
-        let objects = [
-            Person(name: "Jairo", age: 36),
-            Person(name: "Lise-Lotte", age: 33)
-        ]
-        let data = vc.encodeJsonfor(objects: objects)
-        print(String(data: data, encoding: .utf8))
-        XCTAssert(data != nil)
     }
     
 }

@@ -33,7 +33,9 @@ class ViewController: UIViewController {
         personsModel = [
             Person(name: "Jairo", age: 36, category: .parent),
             Person(name: "Lise-Lotte", age: 33, category: .parent),
-            Person(name: "Jascha", age: 0, category: .baby)
+            Person(name: "Jascha", age: 0, category: .baby),
+            Person(name: "Aimée", age: 6, category: .child),
+            Person(name: "Thijmen", age: 5, category: .child)
         ]
         
         for cat in AgeCategory.allValues {
@@ -68,7 +70,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     func personsIn(category: AgeCategory) -> [Person] {
-        var personsInCategory: [Person] = personsModel.filter { switch $0.category {
+        let personsInCategory: [Person] = personsModel.filter { switch $0.category {
         case category:
             return true
         default:
@@ -88,16 +90,20 @@ extension ViewController: UITableViewDataSource {
         return totalRows
     }
     
-    typealias CellInfo = (category: AgeCategory, isParentCell: Bool, person: Person?, localIndex: Int?)
+    typealias CellInfo = (category: AgeCategory, isParentCell: Bool, isCollapsed: Bool, person: Person?, localIndex: Int?)
     
     func cellType(at indexPath: IndexPath) -> CellInfo {
         var personStructure: [CellInfo] = []
         for cat in AgeCategory.allValues {
-            personStructure.append((cat, true, nil, nil))
+            if collapsedStates[cat.rawValue]! {
+                personStructure.append((category: cat, isParentCell: true, isCollapsed: true, person: nil, localIndex: nil))
+            } else {
+                personStructure.append((category: cat, isParentCell: true, isCollapsed: false, person: nil, localIndex: nil))
+            }
             if collapsedStates[cat.rawValue]! {
                 let personsInCategory = personsIn(category: cat)
                 for (index, person) in personsInCategory.enumerated() {
-                    personStructure.append((cat, false, person, index))
+                    personStructure.append((cat, false, false, person, index))
                 }
             }
         }
@@ -110,6 +116,11 @@ extension ViewController: UITableViewDataSource {
             guard let myCell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell") as? CategoryCell else { return UITableViewCell() }
             myCell.label.text = cellInfo.category.rawValue
             myCell.selectionStyle = .none
+            if cellInfo.isCollapsed {
+                myCell.iconImage.image = UIImage(named: "minus")
+            } else {
+                myCell.iconImage.image = UIImage(named: "plus")
+            }
             return myCell
         } else {
             guard let myCell = tableView.dequeueReusableCell(withIdentifier: "ChildCell") as? ChildCell else { return UITableViewCell() }
@@ -126,6 +137,10 @@ extension ViewController: UITableViewDelegate {
         tableview.deselectRow(at: indexPath, animated: false)
         let cellInfo = cellType(at: indexPath)
         guard cellInfo.isParentCell else { return }
+        
+        let cell = tableview.cellForRow(at: indexPath) as! CategoryCell
+        
+        
         collapsedStates[cellInfo.category.rawValue] = !collapsedStates[cellInfo.category.rawValue]!
         //tableView.reloadData()
         
@@ -135,9 +150,11 @@ extension ViewController: UITableViewDelegate {
             indexPaths.append(IndexPath(row: indexPath.row + i, section: 0))
         }
         if collapsedStates[cellInfo.category.rawValue]! {
-            tableview.insertRows(at: indexPaths, with: .top)
+            tableview.insertRows(at: indexPaths, with: .fade)
+            cell.iconImage.image = UIImage(named: "minus")
         } else {
-            tableView.deleteRows(at: indexPaths, with: .top)
+            tableView.deleteRows(at: indexPaths, with: .fade)
+            cell.iconImage.image = UIImage(named: "plus")
         }
         
     }
