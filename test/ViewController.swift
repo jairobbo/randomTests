@@ -20,13 +20,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableview: UITableView!
     
     var personsModel: [Person] = []
-    var collapsedStates = [String: Bool]() {
-        didSet {
-            if collapsedStates.count == AgeCategory.allValues.count {
-                tableview.reloadData()
-            }
-        }
-    }
+    var collapsedStates = [String: Bool]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +28,7 @@ class ViewController: UIViewController {
         
         tableview.dataSource = self
         tableview.delegate = self
+        tableview.separatorStyle = .none
         
         personsModel = [
             Person(name: "Jairo", age: 36, category: .parent),
@@ -128,8 +123,22 @@ extension ViewController: UITableViewDataSource {
 
 extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableview.deselectRow(at: indexPath, animated: false)
         let cellInfo = cellType(at: indexPath)
         guard cellInfo.isParentCell else { return }
         collapsedStates[cellInfo.category.rawValue] = !collapsedStates[cellInfo.category.rawValue]!
+        //tableView.reloadData()
+        
+        var indexPaths: [IndexPath] = []
+        let numberOfItems = personsIn(category: cellInfo.category).count
+        for i in 1...numberOfItems {
+            indexPaths.append(IndexPath(row: indexPath.row + i, section: 0))
+        }
+        if collapsedStates[cellInfo.category.rawValue]! {
+            tableview.insertRows(at: indexPaths, with: .top)
+        } else {
+            tableView.deleteRows(at: indexPaths, with: .top)
+        }
+        
     }
 }
