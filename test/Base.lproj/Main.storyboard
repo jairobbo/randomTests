@@ -68,20 +68,30 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="dot" translatesAutoresizingMaskIntoConstraints="NO" id="0Xu-yg-Z0b">
+                                                    <rect key="frame" x="15" y="7" width="30" height="30"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="30" id="RBU-WR-iK6"/>
+                                                        <constraint firstAttribute="width" constant="30" id="oPz-Go-lRQ"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="0Xu-yg-Z0b" firstAttribute="leading" secondItem="TCq-Sf-7hi" secondAttribute="leading" constant="15" id="2ck-yT-clR"/>
                                                 <constraint firstItem="CN6-xU-T7v" firstAttribute="centerY" secondItem="TCq-Sf-7hi" secondAttribute="centerY" id="OAf-Ca-kog"/>
+                                                <constraint firstItem="0Xu-yg-Z0b" firstAttribute="centerY" secondItem="TCq-Sf-7hi" secondAttribute="centerY" id="nJA-qS-19O"/>
                                                 <constraint firstItem="CN6-xU-T7v" firstAttribute="leading" secondItem="TCq-Sf-7hi" secondAttribute="leading" constant="53" id="y68-oB-9Yh"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="dotImage" destination="0Xu-yg-Z0b" id="c5X-IY-t3N"/>
                                             <outlet property="label" destination="CN6-xU-T7v" id="HhX-IS-u0K"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="0.87558928214739951" blue="0.45487539542115374" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <color key="backgroundColor" red="0.43420851903718666" green="0.89791126943005184" blue="0.47976930205404417" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
                             <constraint firstItem="6F6-c7-22k" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Rqi-B0-BLA"/>
                             <constraint firstItem="6F6-c7-22k" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="YSR-Zx-8PM"/>
@@ -119,6 +129,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="dot" width="200" height="200"/>
         <image name="plus" width="512" height="512"/>
     </resources>
 </document>

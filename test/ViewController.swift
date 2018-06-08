@@ -21,6 +21,7 @@ class ViewController: UIViewController {
     
     var personsModel: [Person] = []
     var collapsedStates = [String: Bool]()
+    var indexPathsOfCellToPop: [IndexPath] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -126,13 +127,16 @@ extension ViewController: UITableViewDataSource {
             guard let myCell = tableView.dequeueReusableCell(withIdentifier: "ChildCell") as? ChildCell else { return UITableViewCell() }
             myCell.label.text = "\(cellInfo.person!.name):  \(cellInfo.person!.age)"
             myCell.selectionStyle = .none
+            if indexPathsOfCellToPop.contains(indexPath) {
+                myCell.dotImage.transform = CGAffineTransform(scaleX: 0, y: 0)
+            }
             return myCell
-            
         }
     }
 }
 
 extension ViewController: UITableViewDelegate {
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableview.deselectRow(at: indexPath, animated: false)
         let cellInfo = cellType(at: indexPath)
@@ -149,13 +153,27 @@ extension ViewController: UITableViewDelegate {
         for i in 1...numberOfItems {
             indexPaths.append(IndexPath(row: indexPath.row + i, section: 0))
         }
-        if collapsedStates[cellInfo.category.rawValue]! {
-            tableview.insertRows(at: indexPaths, with: .fade)
-            cell.iconImage.image = UIImage(named: "minus")
-        } else {
-            tableView.deleteRows(at: indexPaths, with: .fade)
-            cell.iconImage.image = UIImage(named: "plus")
-        }
+        indexPathsOfCellToPop = indexPaths
         
+        tableView.performBatchUpdates({
+            if collapsedStates[cellInfo.category.rawValue]! {
+                tableview.insertRows(at: indexPaths, with: .fade)
+                cell.iconImage.image = UIImage(named: "minus")
+            } else {
+                tableView.deleteRows(at: indexPaths, with: .fade)
+                cell.iconImage.image = UIImage(named: "plus")
+            }
+        }) { (finished) in
+            if finished {
+                print("batch done")
+                let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true, block: { (timer) in
+                    guard let ip = self.indexPathsOfCellToPop.first,
+                        let cell = tableView.cellForRow(at: ip) as? ChildCell else {timer.invalidate(); return }
+                    cell.pop()
+                    self.indexPathsOfCellToPop.remove(at: 0)
+                })
+                timer.fire()
+            }
+        }
     }
 }
