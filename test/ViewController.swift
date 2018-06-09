@@ -22,26 +22,34 @@ class ViewController: UIViewController {
     var personsModel: [Person] = []
     var collapsedStates = [String: Bool]()
     var indexPathsOfCellToPop: [IndexPath] = []
+    var cellStructure: [CellInfo] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        for cat in AgeCategory.allValues {
+            collapsedStates[cat.rawValue] = false
+        }
+        
+        for i in 0...29 {
+            personsModel.append(Person(name: "person\(i)", age: 1, category: .parent))
+        }
+        
+        for i in 0...29 {
+            personsModel.append(Person(name: "person\(i)", age: 1, category: .child))
+        }
+        
+        for i in 0...29 {
+            personsModel.append(Person(name: "person\(i)", age: 1, category: .baby))
+        }
+        
+        cellStructure = makeCellStructure()
+        
         tableview.dataSource = self
         tableview.delegate = self
         tableview.separatorStyle = .none
         
-        personsModel = [
-            Person(name: "Jairo", age: 36, category: .parent),
-            Person(name: "Lise-Lotte", age: 33, category: .parent),
-            Person(name: "Jascha", age: 0, category: .baby),
-            Person(name: "Aimée", age: 6, category: .child),
-            Person(name: "Thijmen", age: 5, category: .child)
-        ]
-        
-        for cat in AgeCategory.allValues {
-            collapsedStates[cat.rawValue] = false
-        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -93,7 +101,7 @@ extension ViewController: UITableViewDataSource {
     
     typealias CellInfo = (category: AgeCategory, isParentCell: Bool, isCollapsed: Bool, person: Person?, localIndex: Int?)
     
-    func cellType(at indexPath: IndexPath) -> CellInfo {
+    func makeCellStructure() -> [CellInfo] {
         var personStructure: [CellInfo] = []
         for cat in AgeCategory.allValues {
             if collapsedStates[cat.rawValue]! {
@@ -108,11 +116,11 @@ extension ViewController: UITableViewDataSource {
                 }
             }
         }
-        return personStructure[indexPath.row]
+        return personStructure
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellInfo = cellType(at: indexPath)
+        let cellInfo = cellStructure[indexPath.row]
         if cellInfo.isParentCell {
             guard let myCell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell") as? CategoryCell else { return UITableViewCell() }
             myCell.label.text = cellInfo.category.rawValue
@@ -139,14 +147,14 @@ extension ViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableview.deselectRow(at: indexPath, animated: false)
-        let cellInfo = cellType(at: indexPath)
+        let cellInfo = cellStructure[indexPath.row]
         guard cellInfo.isParentCell else { return }
         
         let cell = tableview.cellForRow(at: indexPath) as! CategoryCell
         
         
         collapsedStates[cellInfo.category.rawValue] = !collapsedStates[cellInfo.category.rawValue]!
-        //tableView.reloadData()
+        cellStructure = makeCellStructure()
         
         var indexPaths: [IndexPath] = []
         let numberOfItems = personsIn(category: cellInfo.category).count
@@ -166,9 +174,11 @@ extension ViewController: UITableViewDelegate {
         }) { (finished) in
             if finished {
                 print("batch done")
-                let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true, block: { (timer) in
-                    guard let ip = self.indexPathsOfCellToPop.first,
-                        let cell = tableView.cellForRow(at: ip) as? ChildCell else {timer.invalidate(); return }
+                let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { (timer) in
+                    guard let ip = self.indexPathsOfCellToPop.first else { timer.invalidate(); self.indexPathsOfCellToPop = []; return }
+                    guard let cell = tableView.cellForRow(at: ip) as? ChildCell else {
+                            self.indexPathsOfCellToPop.remove(at: 0)
+                            return }
                     cell.pop()
                     self.indexPathsOfCellToPop.remove(at: 0)
                 })
